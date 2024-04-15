@@ -1,0 +1,5 @@
+/* Your app custom styles here */
+
+.input::after{
+    display: none !important;
+}
