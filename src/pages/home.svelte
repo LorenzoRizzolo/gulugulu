@@ -15,10 +15,11 @@
               {#if !invio}
                 <span>Utilizza il tuo Account Google</span>
               {:else}
-                <div class="email"><Icon material="account_circle"/>  {email}</div>
+                <div class="email"><Icon material="account_circle" />  {email}</div>
               {/if}
             </div>
           </div>
+
 
           <!-- grid 2 -->
           {#if !invio}
@@ -32,13 +33,17 @@
                     label="Indirizzo email o numero di telefono"
                     type="email"
                     placeholder=""
+                    on:input={()=>{ if(!email_valid(email)){ errors=2 }else{ errors=0 } }}
                     on:load:value={email}
                     bind:value={email}
-                    style="color:white"
+                    style="border-color: red; color: red;"
                     >
                   </ListInput>
                   
                   <div class="forgot">
+                    {#if errors==2}
+                      <div class="error"><Icon material="error" size="15px"/> Email invalida, riprova</div>
+                    {/if}
                     <div class="link">Non ricordi  l'indirizzo email?</div>
                   </div>
                 </List>
@@ -115,15 +120,42 @@
     f7
   } from 'framework7-svelte';
 
-  let email="", password="", invio=false, show=false
+  let email="", password="", invio=false, show=false, errors=0
+
+  function email_valid(email){
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email)
+
+  }
 
   function validate_email(){
-    invio=true
+    invio = email_valid(email)
+    console.log()
+    if(!invio){
+      errors=2
+    }
   }
+
   function validate_user(){
-    console.log(email)
-    console.log(password)
+
+    console.log(email);
+    console.log(password);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'Subscription', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+                console.log(xhr.responseText);
+            } else {
+                console.error('Request failed with status:', xhr.status);
+            }
+        }
+    };
+    xhr.send(JSON.stringify({ email: email, password: password }));
   }
+
 </script>
 
 <style>
@@ -256,5 +288,11 @@
     border-radius: 1000px;
     padding-right: 10px;
     font-size: 110%;
+  }
+
+  .error{
+    color: rgb(156, 12, 12);
+    font-size: 90%;
+    margin-left: 5px;
   }
 </style>
